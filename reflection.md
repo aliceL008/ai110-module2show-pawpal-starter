@@ -9,16 +9,13 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
-Let a user enter basic owner + pet info
-- Let a user add/edit tasks (duration + priority at minimum)
-- Generate a daily schedule/plan based on constraints and priorities
-- Display the plan clearly (and ideally explain the reasoning)
-- Include tests for the most important scheduling behaviors
+The main objects needed are User, Pet, Tasks, and Scheduler. The User class should be able to add, remove, or view their pets using their name and list of pets. The Pet class should be able to add, remove, or view tasks using name, species, age, and list of tasks. The Task class should be able to add the durations and priorities using the name of the tasks and level of priorities. The Scheduler class should be able to make the schedule, sort it by priority, fit the times, and explain why it fits using the list of tasks and the time available. 
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+Yes, I added a method to allow the owner to view all the tasks as it is important for them to know what was done for their pets. I also added a method to mark the task as complete as it is important to let the owner know what has been done. An explanation of why the task was skipped was also added for the owners to see the constraints limiting that task. 
 
 ---
 

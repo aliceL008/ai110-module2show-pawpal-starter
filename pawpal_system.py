@@ -7,14 +7,24 @@ class Task:
     name: str
     priority: str
     duration: int
+    status: str = "incomplete"
+
+    def mark_complete(self) -> None:
+        """Mark this task as complete."""
+        self.status = "complete"
 
     def set_duration(self, duration: int) -> None:
-        """Update task duration in minutes."""
+        """Update task duration in minutes. Must be positive."""
+        if duration <= 0:
+            raise ValueError("Duration must be positive.")
         self.duration = duration
 
     def set_priority(self, level: str) -> None:
         """Update task priority (e.g., low/medium/high)."""
-        self.priority = level
+        valid_priorities = {'low', 'medium', 'high'}
+        if level.lower() not in valid_priorities:
+            raise ValueError(f"Priority must be one of {valid_priorities}.")
+        self.priority = level.lower()
 
 
 @dataclass
@@ -39,6 +49,7 @@ class Pet:
 
 class User:
     def __init__(self, name: str):
+        """Initialize a User with a name and an empty pet list."""
         self.name = name
         self.pets: List[Pet] = []
 
@@ -54,10 +65,19 @@ class User:
         """Return the user's pets."""
         return list(self.pets)
 
+    def get_all_tasks(self) -> List[Task]:
+        """Aggregate all tasks from all pets."""
+        all_tasks = []
+        for pet in self.pets:
+            all_tasks.extend(pet.tasks)
+        return all_tasks
+
 
 class Scheduler:
-    def __init__(self, tasks: List[Task], time_available: int):
-        self.tasks = tasks
+    def __init__(self, user: User, time_available: int):
+        """Initialize a Scheduler with a user and total available time in minutes."""
+        self.user = user
+        self.tasks = user.get_all_tasks()
         self.time_available = time_available
 
     def sort_by_priority(self) -> List[Task]:
@@ -82,14 +102,21 @@ class Scheduler:
     def explain_fit(self) -> str:
         """Explain why tasks were selected to fill the schedule."""
         scheduled = self.make_schedule()
+        all_sorted = self.sort_by_priority()
+        skipped = [task for task in all_sorted if task not in scheduled]
+        
         if not scheduled:
             return "No tasks could be scheduled in the available time."
 
         lines = [f"Scheduled {task.name} ({task.priority}, {task.duration}m)" for task in scheduled]
         used = sum(task.duration for task in scheduled)
-        return (
+        explanation = (
             "Selected tasks in priority order until time ran out:\n" +
             "\n".join(lines) +
             f"\nTotal used: {used}m / {self.time_available}m"
         )
+        if skipped:
+            skipped_lines = [f"Skipped {task.name} ({task.priority}, {task.duration}m)" for task in skipped]
+            explanation += "\n\nSkipped due to time constraints:\n" + "\n".join(skipped_lines)
+        return explanation
 
