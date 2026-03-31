@@ -1,11 +1,19 @@
 # PawPal+ Project Reflection
 
 ## 1. System Design
-
+1. User should be able to create owner & pet profile
+2. Create tasks that adds the duration and priority of the pet 
+3. Use the tasks to create a schedule list for daily plans and explain why this fits 
 **a. Initial design**
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+
+Let a user enter basic owner + pet info
+- Let a user add/edit tasks (duration + priority at minimum)
+- Generate a daily schedule/plan based on constraints and priorities
+- Display the plan clearly (and ideally explain the reasoning)
+- Include tests for the most important scheduling behaviors
 
 **b. Design changes**
 
