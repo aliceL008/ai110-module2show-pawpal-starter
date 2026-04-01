@@ -1,4 +1,5 @@
 import streamlit as st
+import pawpal_system as ps
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -43,6 +44,20 @@ owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
 
+
+if "owner" not in st.session_state:
+    st.session_state.owner = ps.User(name=owner_name)
+
+if st.button("Add pet"):
+    pet = ps.Pet(name=pet_name, species=species, age=1)
+    st.session_state.owner.add_pet(pet)
+    st.success(f"Added {pet_name} the {species}!")
+
+if st.session_state.owner.view_pets():
+    st.write("Pets:", [p.name for p in st.session_state.owner.view_pets()])
+
+st.divider()
+
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
 
@@ -71,18 +86,18 @@ else:
 st.divider()
 
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+time_available = st.number_input("Minutes available today", min_value=1, max_value=480, value=60)
 
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    pets = st.session_state.owner.view_pets()
+    if not pets:
+        st.warning("Add a pet first.")
+    elif not st.session_state.tasks:
+        st.warning("Add at least one task first.")
+    else:
+        pet = pets[-1]
+        for t in st.session_state.tasks:
+            task = ps.Task(name=t["title"], priority=t["priority"], duration=t["duration_minutes"])
+            pet.add_task(task)
+        scheduler = ps.Scheduler(user=st.session_state.owner, time_available=int(time_available))
+        st.markdown(scheduler.explain_fit())

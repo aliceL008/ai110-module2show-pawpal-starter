@@ -25,6 +25,7 @@ Yes, I added a method to allow the owner to view all the tasks as it is importan
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
+My scheduler considers time, priority, ordering by start time, recurrence, conflicts, and completion. The main ones are time and priority, because tasks are picked based on priority and only if they fit in the available time. It also checks start times to order tasks correctly and makes sure tasks don’t overlap. Recurrence and completion make sure new tasks only show up after the old ones are done, so there are no duplicates. I chose time and priority as the most important because they directly affect what gets scheduled. Since time is limited, higher priority tasks should be done first. The other constraints like conflicts and completion just help make the schedule realistic, making sure tasks don’t overlap and new ones don’t repeat before finishing old ones.
 
 **b. Tradeoffs**
 
