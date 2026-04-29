@@ -1,5 +1,24 @@
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment / secrets
+.env
+.env.*
+
+# Virtual environments
+venv/
 .venv/
-.venv_new/
-.pytest_cache/
+env/
+
+# Logs
+*.log
+tests/test_rag.log
+
+# OS files
 .DS_Store
+
+# Diagram generator script (utility, not part of the project)
+generate_diagram.py

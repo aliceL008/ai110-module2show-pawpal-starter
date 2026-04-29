@@ -1,0 +1,149 @@
+classDiagram
+    direction TB
+
+    class UserInput {
+        +String petName
+        +String species
+        +String breed
+        +int age
+        +int availableTime
+        +String preferredTimeOfDay
+    }
+
+    class Pet {
+        +String name
+        +String species
+        +String breed
+        +int age
+        +int availableTime
+        +List~Task~ tasks
+        +add_task(task)
+        +view_tasks()
+    }
+
+    class User {
+        +String name
+        +List~Pet~ pets
+        +add_pet(pet)
+        +remove_pet(name)
+        +view_pets()
+    }
+
+    class Task {
+        +String name
+        +String priority
+        +int duration
+        +String startTime
+        +String recurrence
+        +String reasoning
+    }
+
+    class RAGTaskRecommender {
+        +String apiKey
+        +VectorStore vectorStore
+        +recommend_tasks(pet, constraints)
+        +_fallback_recommendations(pet)
+        +_search_breed_guidelines(breed, species)
+        +_extract_duration(text, default)
+        +score_confidence(tasks, used_ai, breed_data_found)
+    }
+
+    class VectorStore {
+        +List~dict~ documents
+        +ndarray embeddings
+        +retrieve(query, top_k)
+        +_embed(texts)
+    }
+
+    class PetCareRetriever {
+        +VectorStore store
+        +retrieve(pet_species, pet_age, query_topic)
+    }
+
+    class PetCareKnowledgeBase {
+        <<data>>
+        +20 vet-sourced documents
+        +Feeding guidelines
+        +Exercise recommendations
+        +Grooming standards
+        +Dental and health care
+        +Senior and puppy care
+    }
+
+    class YouComSearchAPI {
+        <<external>>
+        +search(query, trusted_domains)
+        +filterByTopic(keywords)
+        +deduplicateByDomain()
+    }
+
+    class AIModel {
+        <<optional>>
+        +Gemini 2.0 Flash
+        +OpenAI GPT-4o-mini
+        +generate(prompt, context)
+        +preferred but not required
+    }
+
+    class Scheduler {
+        +User user
+        +int timeAvailable
+        +make_schedule()
+        +detect_conflicts()
+        +explain_fit()
+    }
+
+    class ConfidenceScorer {
+        <<service>>
+        +float overall
+        +float has_reasoning
+        +float breed_specific
+        +float duration_sanity
+        +float has_essentials
+        +score(tasks, used_ai, breed_data_found)
+    }
+
+    class HumanEvaluator {
+        <<human>>
+        +review_sample_outputs()
+        +assess_task_quality()
+        +check_reasoning_relevance()
+    }
+
+    class AutomatedTestSuite {
+        <<testing>>
+        +TestVectorStore
+        +TestFallbackRecommendations
+        +TestKBRetriever
+        +TestConfidenceScoring
+        +TestErrorHandling
+        +TestHumanEvaluation
+        +run_all_30_tests()
+        +log_to_file()
+    }
+
+    %% Data flow: Input → Processing
+    UserInput --> Pet : creates
+    User "1" o-- "many" Pet : owns
+    Pet "1" o-- "many" Task : has
+
+    %% RAG Pipeline
+    PetCareKnowledgeBase --> VectorStore : indexed as embeddings
+    VectorStore <-- PetCareRetriever : retrieves from
+    RAGTaskRecommender --> PetCareRetriever : queries KB
+    RAGTaskRecommender --> YouComSearchAPI : fetches live breed guidelines
+    RAGTaskRecommender --> AIModel : attempts schedule generation
+    RAGTaskRecommender --> RAGTaskRecommender : falls back if API unavailable
+    RAGTaskRecommender ..> Task : produces
+
+    %% Confidence & Scheduling
+    RAGTaskRecommender --> ConfidenceScorer : scores output
+    Scheduler --> Task : prioritizes and fits
+    Scheduler --> User : builds schedule for
+
+    %% Human & Testing oversight
+    HumanEvaluator ..> RAGTaskRecommender : evaluates output quality
+    AutomatedTestSuite ..> RAGTaskRecommender : unit + integration tests
+    AutomatedTestSuite ..> VectorStore : retrieval tests
+    AutomatedTestSuite ..> Scheduler : conflict detection tests
+    AutomatedTestSuite ..> ConfidenceScorer : confidence threshold tests
